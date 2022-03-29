@@ -14,6 +14,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+//public routes
+Route::get('/products', function() {
+    return 'products';
 });
+
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+//TODO: uncoment to using!
+//protected routes
+// Route::group(['middleware' => ['auth:sanctum']], function() {
+//     Route::get('/products', [ProductsController::class, 'index']);
+// });
