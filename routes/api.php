@@ -27,6 +27,7 @@ Route::get('/products', function() {
 
 //TODO: uncoment to using!
 //protected routes
-// Route::group(['middleware' => ['auth:sanctum']], function() {
-//     Route::get('/products', [ProductsController::class, 'index']);
-// });
+Route::group(['middleware' => ['auth:sanctum']], function() {
+    // Route::get('/products', [ProductsController::class, 'index']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
