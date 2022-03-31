@@ -6,60 +6,74 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Hash;
+use Auth;
+use Validator;
 
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $fields = $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|unique:users,email',
-            'password' => 'required|string|confirmed'
-        ]);
-
-        $user = User::create([
-            'name' => $fields['name'],
-            'email' => $fields['email'],
-            'password' => bcrypt($fields['password'])
-        ]);
-
-        $token = $user->createToken('token')->plainTextToken;
-
-        $response = [
-            'user' => $user,
-            'token' => $token
-        ];
-
-        return response($response, 201);
+{
+    /**Validate the data using validation rules
+    */
+    $validator = Validator::make($request->all(), [
+        'name' => 'required',
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+         
+    /**Check the validation becomes fails or not
+    */
+    if ($validator->fails()) {
+        /**Return error message
+        */
+        return response()->json([ 'error'=> $validator->errors() ]);
     }
 
-    public function login(Request $request)
-    {
-        $fields = $request->validate([
-            'email' => 'required|string',
-            'password' => 'required|string'
-        ]);
+    /**Store all values of the fields
+    */
+    $newuser = $request->all();
 
-        //check email
-        $user = User::where('email', $fields['email'])->first();
+        /**Create an encrypted password using the hash
+    */
+    $newuser['password'] = Hash::make($newuser['password']);
 
-        //check password
-        if(!$user || !Hash::check($fields['password'], $user->password))
-        {
-            return response([
-                'message' => 'Bad creds'
-            ], 401);
-        }
+    /**Insert a new user in the table
+    */
+    $user = User::create($newuser);
 
-        $token = $user->createToken('token')->plainTextToken;
+        /**Create an access token for the user
+    */
+    $success['token'] = $user->createToken('AppName')->accessToken;
+    /**Return success message with token value
+    */
+    return response()->json(['success'=>$success], 200);
+}
 
-        $response = [
-            'user' => $user,
-            'token' => $token
-        ];
+public function login(Request $request)
+{
+    /**Read the credentials passed by the user
+    */
+    $credentials = [
+        'email' => $request->email,
+        'password' => $request->password
+    ];
 
-        return response($response, 201);
+    /**Check the credentials are valid or not
+    */
+    if( auth()->attempt($credentials) ){
+        /**Store the information of authenticated user
+        */
+        $user = Auth::user();
+        /**Create token for the authenticated user
+        */
+        $success['token'] = $user->createToken('AppName')->accessToken;
+        return response()->json(['success' => $success], 200);
+    } else {
+        /**Return error message
+        */
+        return response()->json(['error'=>'Unauthorised'], 401);
     }
+}
 
     public function logout(Request $request)
     {
