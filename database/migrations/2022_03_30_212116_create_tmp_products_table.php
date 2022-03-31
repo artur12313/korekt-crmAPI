@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tmp_products', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
             $table->string('name');
             $table->string('unit');
             $table->double('net_purchase_price', 10,2)->nullable();
