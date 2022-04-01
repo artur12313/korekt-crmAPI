@@ -28,7 +28,8 @@ Route::get('/products', function() {
 
 //TODO: uncoment to using!
 //protected routes
-Route::group(['middleware' => ['auth:sanctum']], function() {
+Route::group(['middleware' => ['auth:passport']], function() {
+    Route::get('user/{email}', [AuthController::class, 'userDetail']);
     // Route::get('/products', [ProductsController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
 });

@@ -26,7 +26,7 @@ class AuthController extends Controller
     if ($validator->fails()) {
         /**Return error message
         */
-        return response()->json([ 'error'=> $validator->errors() ]);
+        return response()->json([ 'status' => 'failed', 'message' => 'validation_error', 'errors' => $validator->errors()]);
     }
 
     /**Store all values of the fields
@@ -37,6 +37,10 @@ class AuthController extends Controller
     */
     $newuser['password'] = Hash::make($newuser['password']);
 
+    $user_status = User::where('email', $request->email)->first();
+    if(!is_null($user_status)){
+        return response()->json(['status' => 'failed', 'success' => false, 'message' => "Ups! Ten email jest już zajęty"]);
+    }
     /**Insert a new user in the table
     */
     $user = User::create($newuser);
@@ -46,7 +50,12 @@ class AuthController extends Controller
     $success['token'] = $user->createToken('AppName')->accessToken;
     /**Return success message with token value
     */
-    return response()->json(['success'=>$success], 200);
+    if(!is_null($user)){
+        return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoje konto zostało utworzone pomyślnie', 'data' => $user]);
+    } else {
+        return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błąd!']);
+    }
+    
 }
 
 public function login(Request $request)
@@ -67,11 +76,19 @@ public function login(Request $request)
         /**Create token for the authenticated user
         */
         $success['token'] = $user->createToken('AppName')->accessToken;
-        return response()->json(['success' => $success], 200);
+        return response()->json(['status' => 200, 'success' => true, 'message' => 'Pomyślnie zalogowano', 'data' => $user]);
     } else {
         /**Return error message
         */
-        return response()->json(['error'=>'Unauthorised'], 401);
+        return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błędne dane logowania. Spróbuj ponownie']);
+    }
+}
+
+public function userDetail($email) {
+    $user = array();
+    if($email != ''){
+        $user = User::where('email', $email)->first();
+        return $user;
     }
 }
 
