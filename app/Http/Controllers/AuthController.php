@@ -78,4 +78,21 @@ public function userDetail($email) {
             'message' => 'Logged out'
         ];
     }
+
+    public function updatePassword(Request $request){ 
+        if (!(Hash::check($request->get('current-password'), Auth::user()->password)))
+        { 
+            // The passwords matches
+            return redirect()->back()->with("error","Twoje obecne hasło nie pasuje do hasła, które podałeś. Proszę spróbuj ponownie.");
+        }
+        if(strcmp($request->get('current-password'), $request->get('new-password')) == 0)
+        {
+            //Current password and new password are same
+            return redirect()->back()->with("error","Nowe hasło nie może być takie samo jak obecne hasło. Wybierz inne hasło."); 
+        }
+        
+        $validatedData = $request->validate([ 'current-password' => 'required', 'new-password' => 'required|string|min:6|confirmed', ]);
+        //Change Password
+        DB::table('users')->where('id', Auth::id())->update(['password' => Hash::make($request->get('new-password'))]);
+        return redirect()->back()->with("success","Hasło zostało pomyślnie zmienione !"); }
 }
