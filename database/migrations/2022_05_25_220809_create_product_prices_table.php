@@ -15,7 +15,11 @@ return new class extends Migration
     {
         Schema::create('product_prices', function (Blueprint $table) {
             $table->id();
+            $table->double('net_purchase_price', 10,2)->nullable();
+            $table->unsignedBigInteger('product_id');
+            $table->foreign('product_id')->references('id')->on('products');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
