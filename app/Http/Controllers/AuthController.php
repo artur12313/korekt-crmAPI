@@ -110,9 +110,5 @@ public function userDetail($email) {
         }else {
             return response()->json(['status' => 'failed', 'success' => false, 'message' => "Błąd!"]);
         }
-
-
-
-        return response()->json(['status' => 200, 'success' => true, 'message' => 'Pomyślnie zalogowano']);
     }
 }
