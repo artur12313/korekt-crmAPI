@@ -28,9 +28,10 @@ Route::get('/products', function() {
 
 //TODO: uncoment to using!
 //protected routes
+Route::post('/passwordUpdate', [AuthController::class, 'updatePassword']);
 Route::group(['middleware' => ['auth:passport']], function() {
     Route::get('user/{email}', [AuthController::class, 'userDetail']);
     // Route::get('/products', [ProductsController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/password-update', [AuthController::class, 'updatePassword']);
+    
 });

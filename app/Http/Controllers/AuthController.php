@@ -80,19 +80,36 @@ public function userDetail($email) {
     }
 
     public function updatePassword(Request $request){ 
-        if (!(Hash::check($request->get('currentPassword'), Auth::user()->password)))
-        { 
-            // The passwords matches
-            return redirect()->back()->with("error","Twoje obecne hasło nie pasuje do hasła, które podałeś. Proszę spróbuj ponownie.");
-        }
-        if(strcmp($request->get('currentPassword'), $request->get('new-password')) == 0)
-        {
-            //Current password and new password are same
-            return redirect()->back()->with("error","Nowe hasło nie może być takie samo jak obecne hasło. Wybierz inne hasło."); 
-        }
+        $credentials = [
+            'password' => $request->password,
+            'id' => $request->userId
+        ];
+
+        $user_status = User::where('id', $request->userId)->first();
         
-        $validatedData = $request->validate([ 'currentPassword' => 'required', 'new-password' => 'required|string|min:6|confirmed', ]);
-        //Change Password
-        DB::table('users')->where('id', Auth::id())->update(['password' => Hash::make($request->get('new-password'))]);
-        return redirect()->back()->with("success","Hasło zostało pomyślnie zmienione !"); }
+        if($user_status){
+            if (!(Hash::check($request->password, $user_status->password)))
+            { 
+                // The passwords matches
+                return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Twoje obecne hasło nie pasuje do hasła, które podałeś. Proszę spróbuj ponownie.']);
+            }
+            if(strcmp($request->password, $request->newPassword) == 0)
+            {
+                //Current password and new password are same
+                return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Nowe hasło nie może być takie samo jak obecne hasło. Wybierz inne hasło.']); 
+            }
+            
+            // $validatedData = $request->validate([ 'currentPassword' => 'required', 'new-password' => 'required|string|min:6|confirmed', ]);
+            // //Change Password
+            // DB::table('users')->where('id', Auth::id())->update(['password' => Hash::make($request->get('new-password'))]);
+            // return redirect()->back()->with("success","Hasło zostało pomyślnie zmienione !");
+            // return response()->json(['status' => 200, 'success' => true, 'message' => "Hasło zostało zaktualizowane!"]);
+        }else {
+            return response()->json(['status' => 'failed', 'success' => false, 'message' => "Błąd!"]);
+        }
+
+
+
+        return response()->json(['status' => 200, 'success' => true, 'message' => 'Pomyślnie zalogowano']);
+    }
 }
