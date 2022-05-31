@@ -99,11 +99,14 @@ public function userDetail($email) {
                 return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Nowe hasło nie może być takie samo jak obecne hasło. Wybierz inne hasło.']); 
             }
             
-            // $validatedData = $request->validate([ 'currentPassword' => 'required', 'new-password' => 'required|string|min:6|confirmed', ]);
-            // //Change Password
-            // DB::table('users')->where('id', Auth::id())->update(['password' => Hash::make($request->get('new-password'))]);
-            // return redirect()->back()->with("success","Hasło zostało pomyślnie zmienione !");
-            // return response()->json(['status' => 200, 'success' => true, 'message' => "Hasło zostało zaktualizowane!"]);
+            $validatedData = $request->validate([ 
+                'password' => 'required',
+                'newPassword' => 'required|string'
+            ]);
+            
+            //Change Password
+            User::find($request->userId)->update(['password' => Hash::make($request->newPassword)]);
+            return response()->json(['status' => 200, 'success' => true, 'message' => "Hasło zostało zaktualizowane!"]);
         }else {
             return response()->json(['status' => 'failed', 'success' => false, 'message' => "Błąd!"]);
         }
