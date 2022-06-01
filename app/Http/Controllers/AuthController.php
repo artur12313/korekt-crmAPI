@@ -145,7 +145,7 @@ public function userDetail($email) {
             $user->name = $request->name;
             $user->update();
 
-            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoja nazwa użytkownika zostałą zaktualizowana!', 'user' => $user]);
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoja nazwa użytkownika została zaktualizowana!', 'user' => $user]);
         }
         if($request->email)
         {
@@ -154,8 +154,15 @@ public function userDetail($email) {
 
             return response()->json(['status' => 200, 'success' => true, 'message' => 'Twój e-mail został zaktualizowany!', 'user' => $user]);
         }
+        if($request->phone)
+        {
+            $user->phone = $request->phone;
+            $user->update();
+            
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twój numer telefonu został zaktualizowany', 'user' => $user]);
+        }
         // return response()->json(['status' => 'failed', 'message' => 'nie wybrano żadnego pliku!', 'image_url' => NULL]);
+        
         return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Formularz jest pusty. Nie zaktualizowano żadnych wartości']);
-
     }
 }
