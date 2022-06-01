@@ -111,4 +111,51 @@ public function userDetail($email) {
             return response()->json(['status' => 'failed', 'success' => false, 'message' => "Błąd!"]);
         }
     }
+
+    public function profileUpdate(Request $request)
+    {
+        $request->validate([
+            'image' => 'image|mimes:jpeg,jpg,png,gif,svg|max:2048',
+        ]);
+
+        $user = User::find($request->userId);
+
+        if($request->file('image'))
+        {
+            if($this->guard()->user()->image != NULL)
+            {
+                Storage::disk('user_avatars')->delete($this->guard()->image);
+            }
+
+            $avatar_name = $this->random_char_gen(20).'.'.$request->file('image')->getClientOriginalExtension();
+            $avatar_path = $request->file('image')->storeAs('', $avatar_name, 'user_avatars');
+
+            $profile = User::find($request->user()->id);
+            $profile->avatar = $avatar_path;
+
+            if($profile->save())
+            {
+                return response()->json(['status' => 200, 'message' => 'Avatar został zaktualizowany!', 'image_url' => url('storage/user-avatar/'.$avatar_path), 'user' => $user]);
+            }else {
+                return response()->json(['status' => 'failed', 'message' => 'Wystąłpił błąd w przesyłaniu obrazu!', 'image_url' => NULL]);
+            }
+        }
+        if($request->name)
+        {
+            $user->name = $request->name;
+            $user->update();
+
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoja nazwa użytkownika zostałą zaktualizowana!', 'user' => $user]);
+        }
+        if($request->email)
+        {
+            $user->email = $request->email;
+            $user->update();
+
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twój e-mail został zaktualizowany!', 'user' => $user]);
+        }
+        // return response()->json(['status' => 'failed', 'message' => 'nie wybrano żadnego pliku!', 'image_url' => NULL]);
+        return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Formularz jest pusty. Nie zaktualizowano żadnych wartości']);
+
+    }
 }
