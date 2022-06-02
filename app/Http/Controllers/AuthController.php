@@ -12,63 +12,63 @@ use Validator;
 class AuthController extends Controller
 {
     public function register(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name' => 'required',
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
-         
-    if ($validator->fails()) {
-        return response()->json([ 'status' => 'failed', 'message' => 'validation_error', 'errors' => $validator->errors()]);
-    }
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+            
+        if ($validator->fails()) {
+            return response()->json([ 'status' => 'failed', 'message' => 'validation_error', 'errors' => $validator->errors()]);
+        }
 
-    $newuser = $request->all();
+        $newuser = $request->all();
 
-    $newuser['password'] = Hash::make($newuser['password']);
+        $newuser['password'] = Hash::make($newuser['password']);
 
-    $user_status = User::where('email', $request->email)->first();
-    if(!is_null($user_status)){
-        return response()->json(['status' => 'failed', 'success' => false, 'message' => "Ups! Ten email jest już zajęty"]);
-    }
+        $user_status = User::where('email', $request->email)->first();
+        if(!is_null($user_status)){
+            return response()->json(['status' => 'failed', 'success' => false, 'message' => "Ups! Ten email jest już zajęty"]);
+        }
 
-    $user = User::create($newuser);
-
-    $success['token'] = $user->createToken('AppName')->accessToken;
-    
-    if(!is_null($user)){
-        return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoje konto zostało utworzone pomyślnie', 'data' => $user]);
-    } else {
-        return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błąd!']);
-    }
-    
-}
-
-public function login(Request $request)
-{
-    $credentials = [
-        'email' => $request->email,
-        'password' => $request->password
-    ];
-    if( auth()->attempt($credentials) ){
-
-        $user = Auth::user();
+        $user = User::create($newuser);
 
         $success['token'] = $user->createToken('AppName')->accessToken;
-        return response()->json(['status' => 200, 'success' => true, 'message' => 'Pomyślnie zalogowano', 'data' => $user]);
-    } else {
-    
-        return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błędne dane logowania. Spróbuj ponownie']);
+        
+        if(!is_null($user)){
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Twoje konto zostało utworzone pomyślnie', 'data' => $user]);
+        } else {
+            return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błąd!']);
+        }
+        
     }
-}
 
-public function userDetail($email) {
-    $user = array();
-    if($email != ''){
-        $user = User::where('email', $email)->first();
-        return $user;
+    public function login(Request $request)
+    {
+        $credentials = [
+            'email' => $request->email,
+            'password' => $request->password
+        ];
+        if( auth()->attempt($credentials) ){
+
+            $user = Auth::user();
+
+            $success['token'] = $user->createToken('AppName')->accessToken;
+            return response()->json(['status' => 200, 'success' => true, 'message' => 'Pomyślnie zalogowano', 'data' => $user]);
+        } else {
+        
+            return response()->json(['status' => 'failed', 'success' => false, 'message' => 'Błędne dane logowania. Spróbuj ponownie']);
+        }
     }
-}
+
+    public function userDetail($email) {
+        $user = array();
+        if($email != ''){
+            $user = User::where('email', $email)->first();
+            return $user;
+        }
+    }
 
     public function logout(Request $request)
     {
