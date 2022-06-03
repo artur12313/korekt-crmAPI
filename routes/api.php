@@ -32,6 +32,7 @@ Route::get('/products', function() {
 Route::post('/passwordUpdate', [AuthController::class, 'updatePassword']);
 Route::post('/profileUpdate', [AuthController::class, 'profileUpdate']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::post('/category/new', [CategoryController::class, 'store']);
 Route::group(['middleware' => ['auth:passport']], function() {
     Route::get('user/{email}', [AuthController::class, 'userDetail']);
     // Route::get('/products', [ProductsController::class, 'index']);
