@@ -35,7 +35,11 @@ Route::get('/products', function() {
 Route::post('/passwordUpdate', [AuthController::class, 'updatePassword']);
 Route::post('/profileUpdate', [AuthController::class, 'profileUpdate']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/roles', [RolesController::class, 'index']);
 Route::get('/users', [UsersController::class, 'index']);
+Route::patch('/users/{id}/update', [UsersController::class, 'update']);
+Route::delete('/users/{id}/delete', [UsersController::class, 'destroy']);
+Route::post('/users/new', [UsersController::class, 'store']);
 Route::post('/category/new', [CategoryController::class, 'store']);
 Route::group(['middleware' => ['auth:passport']], function() {
     Route::get('user/{email}', [AuthController::class, 'userDetail']);
@@ -54,6 +58,6 @@ Route::group(['middleware' => ['auth:passport']], function() {
 //     Route::delete('/{user}/delete', 'UsersController@destroy')->name('users.destroy');
 //     });
 
-Route::resource('roles', RolesController::class);
+// Route::resource('roles', RolesController::class);
 Route::resource('permissions', PermissionsController::class);
 });
